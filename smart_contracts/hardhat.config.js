@@ -31,7 +31,7 @@ task("account", "Returns nonce and balance for specified address on Scroll Sepol
   });
 
 module.exports = {
-  solidity: "0.8.27",
+  solidity: "0.8.19",
   networks: {
     hardhat: {},
     sepolia: {
