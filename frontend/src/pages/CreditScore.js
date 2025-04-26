@@ -267,8 +267,8 @@ const CreateCreditScorePage = () => {
   const renderSummary = () => {
     if (!features) return null;
     return (
-      <div className="text-gray-800 text-sm">
-        <h4 className="font-bold">Transaction History:</h4>
+      <div className="text-gray-800 text-base md:text-lg lg:text-xl">
+        <h4 className="font-bold">1. Transaction History:</h4>
         <p>Frequency: {features.TransactionFrequency}</p>
         <p>Volume (ETH): {features.TransactionVolume}</p>
         <p className="mt-2 italic">Click to expand for full details...</p>
@@ -280,7 +280,7 @@ const CreateCreditScorePage = () => {
   const renderFullFeatures = () => {
     if (!features) return null;
     return (
-      <div className="text-gray-800 text-sm">
+      <div className="text-gray-800 text-base md:text-lg lg:text-xl pb-4">
         <h4 className="font-bold mb-2">1. Transaction History:</h4>
         <p>Transaction Frequency: {features.TransactionFrequency}</p>
         <p>Transaction Volume (ETH): {features.TransactionVolume}</p>
@@ -314,92 +314,98 @@ const CreateCreditScorePage = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col xl:flex-row bg-cover bg-center overflow-auto"
+      className="min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-96px)] flex flex-col xl:flex-row bg-cover bg-center overflow-auto"
       style={{ backgroundImage: `url(${landingbg})` }}
     >
-      {/* Left Section: FicoGauge with dynamic creditScore */}
-      <div className="flex-1 flex items-center justify-center p-4">
-        <FicoGauge score={creditScore} />
-      </div>
-
-      {/* Right Section: Wallet Options & Form */}
-      <div className="flex-1 p-8 m-12 bg-white bg-opacity-65 rounded-lg shadow-lg flex flex-col justify-start transition-all duration-300">
+      {/* Left Section: Wallet Options & Form */}
+      <div className="flex-1 p-8 m-12 bg-white bg-opacity-65 rounded-lg shadow-lg flex flex-col justify-between transition-all duration-300 overflow-y-auto">
+        {/* Grouped Components: Connect Wallet and Extracted Features */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            Connect Your Wallet
-          </h2>
-          <p className="text-gray-600 text-center mb-4">
-            You can either connect your wallet using MetaMask or manually enter a wallet address.
-          </p>
-          <div className="flex flex-col items-center space-y-6">
-            {/* Connect Wallet Button */}
-            <button
-              onClick={handleConnectWallet}
-              className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
-            >
-              <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
-                Connect Wallet
-              </span>
-              <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
-            </button>
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+              Connect Your Wallet
+            </h2>
+            <p className="text-gray-700 text-lg text-center mb-4">
+              You can either connect your wallet using MetaMask or manually enter a wallet address.
+            </p>
+            <div className="flex flex-col items-center space-y-6">
+              {/* Connect Wallet Button */}
+              <button
+                onClick={handleConnectWallet}
+                className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
+              >
+                <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
+                  Connect Wallet
+                </span>
+                <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
+              </button>
 
-            {/* Wallet Address Input */}
-            <input
-              type="text"
-              value={walletAddress}
-              onChange={(e) => setWalletAddress(e.target.value)}
-              placeholder="Enter Wallet Address (0x...)"
-              className="w-80 p-3 border rounded-md focus:outline-none text-gray-700 text-center"
-            />
+              {/* Wallet Address Input */}
+              <input
+                type="text"
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
+                placeholder="Enter Wallet Address (0x...)"
+                className="w-80 p-3 border rounded-md focus:outline-none text-gray-700 text-center"
+              />
 
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
-            >
-              <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
-                {loading ? "Processing..." : "Submit"}
-              </span>
-              <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
-            </button>
+              {/* Submit Button */}
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
+              >
+                <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
+                  {loading ? "Processing..." : "Submit"}
+                </span>
+                <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
+              </button>
+            </div>
           </div>
+
+          {/* Extracted Features Section */}
+          {features && (
+            <div className="mt-8">
+              <div
+                className="flex items-center justify-between cursor-pointer border-b pb-2"
+                onClick={toggleExpand}
+              >
+                <h3 className="text-3xl md:text-4xl font-semibold text-gray-800">
+                  Extracted Features
+                </h3>
+                <svg
+                  className={`w-5 h-5 transform transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div className=" bg-white/80 backdrop-blur-md rounded-lg shadow-lg p-6 mt-4 text-gray-800 overflow-y-auto max-h-80 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent flex justify-center">
+                <div className=" max-w-3xl text-left">
+                  {isExpanded ? renderFullFeatures() : renderSummary()}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Extracted Features Section (displayed as a collapsible dropdown below the submit button) */}
-        {features && (
-          <div className="mt-8">
-            <div
-              className="flex items-center justify-between cursor-pointer border-b pb-2"
-              onClick={toggleExpand}
-            >
-              <h3 className="text-2xl font-semibold text-gray-800">
-                Extracted Features
-              </h3>
-              <svg
-                className={`w-5 h-5 transform transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-            <div className="mt-4">
-              {isExpanded ? renderFullFeatures() : renderSummary()}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 p-4 rounded-lg shadow-md">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Aggregated Credit Score</h3>
+        {/* Aggregated Credit Score Section */}
+        <div className="mt-8 p-4 rounded-lg shadow-md overflow-y-auto max-h-64">
+          <h3 className="text-3xl font-bold text-gray-800 mb-4">Aggregated Credit Score</h3>
           <div className="flex justify-between items-center">
-            <p className="text-gray-700 text-xl font-semibold">
+            <p className="text-gray-700 text-2xl font-semibold">
               <strong>Score:</strong> {creditScore || 0}
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Right Section: FicoGauge with dynamic creditScore */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <FicoGauge score={creditScore} />
       </div>
     </div>
   );

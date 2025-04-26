@@ -10,5 +10,10 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar'),
+  ],
+  variants: {
+    scrollbar: ['rounded'], // Optional: Adds rounded corners to the scrollbar
+  },
 }

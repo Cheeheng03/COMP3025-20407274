@@ -1,11 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import landingbg from '../assets/images/landingbg.jpg';
 import python from '../assets/images/poweredby/python.png';
 import moralis from '../assets/images/poweredby/moralis.png';
 import chainlink from '../assets/images/poweredby/chainlink.png';
 import ethereum from '../assets/images/poweredby/ethereum.png'
 import react from '../assets/images/poweredby/react.png';
-import testvideo from '../assets/videos/posting.mp4';
 import footerimage from '../assets/images/footer.png';
 import landinggif from '../assets/images/landinggif.gif'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,15 +12,12 @@ import { faChartLine, faCogs, faDatabase } from '@fortawesome/free-solid-svg-ico
 import FicoGauge from "../components/FicoGauge";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import NewsSection from '../components/NewsSlider'; 
 
 const Landing = ({ headerHeight }) => {
     const [containerHeight, setContainerHeight] = useState(`calc(100vh - ${headerHeight}px)`);
     const [currentWord, setCurrentWord] = useState("optimizing");
     const words = ["transparent", "trustworthy", "predictable"];
     const [fadeIn, setFadeIn] = useState(true);
-    const videoElementRef = useRef(null);
-    const [activeVideoSrc, setActiveVideoSrc] = useState(null);
 
     useEffect(() => {
         setContainerHeight(`calc(100vh - ${headerHeight}px)`);
@@ -43,14 +39,6 @@ const Landing = ({ headerHeight }) => {
         return () => clearInterval(intervalId);
     }, [words]);
 
-    const handleVideoClick = (videoSrc) => {
-        setActiveVideoSrc(videoSrc); 
-    };
-
-    const handleCloseModal = () => {
-        setActiveVideoSrc(null);
-    };
-
     return (
         <div className='bg-black'>
             <div className='bg-black w-full'>
@@ -71,31 +59,23 @@ const Landing = ({ headerHeight }) => {
 
 
                         <div className="flex justify-center space-x-6 mt-8">
-                            <button
-                                className="relative bg-gray-800 font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
-                                onClick={() => handleVideoClick("/assets/videos/vid1.mp4")}
-                            >
-                                <span className="relative z-10 bg-white text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
-                                    View Demo
-                                </span>
-                                <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
-                            </button>
-
-                            <button
-                                className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
-                            >
-                                <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
-                                    Calculate Now
-                                </span>
-                                <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
-                            </button>
+                            <a href="/credit-score">
+                                <button
+                                    className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
+                                >
+                                    <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
+                                        Calculate Now
+                                    </span>
+                                    <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
+                                </button>
+                            </a>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 w-full font-mono">
                             <div className="bg-gray-800 text-white rounded-lg p-6 text-center">
                                 <FontAwesomeIcon icon={faChartLine} className="text-gray-500 text-4xl mb-4" />
                                 <h3 className="text-gray-500 text-lg font-bold">Average Model Accuracy</h3>
-                                <p className="text-[#4ec7b3] text-3xl font-semibold">~70%</p>
+                                <p className="text-[#4ec7b3] text-3xl font-semibold">~98%</p>
                             </div>
 
                             <div className="bg-gray-800 text-white rounded-lg p-6 text-center">
@@ -148,7 +128,7 @@ const Landing = ({ headerHeight }) => {
 
 
             {/* Video Section */}         
-            <section>
+            {/* <section>
                 <div className="text-[#00E4BF] mb-4 inline-block py-1 px-4 border border-[#00E4BF] rounded-full mt-10 lg:mt-20">
                     Demo Video
                 </div>
@@ -174,9 +154,9 @@ const Landing = ({ headerHeight }) => {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
 
-            {activeVideoSrc && (
+            {/* {activeVideoSrc && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
                     <div className="relative bg-black p-6 rounded-lg shadow-lg">
                         <button onClick={handleCloseModal} className="absolute top-2 right-2 text-white text-2xl">
@@ -185,7 +165,7 @@ const Landing = ({ headerHeight }) => {
                         <video src={activeVideoSrc} className="w-full h-full max-w-4xl" controls autoPlay />
                     </div>
                 </div>
-            )}
+            )} */}
 
             <section className="bg-black p-8 pt-0 text-center mt-10 lg:mt-28 mb-20 lg:mb-36">
                 <div className='flex flex-col items-center justify-center'>
@@ -205,8 +185,8 @@ const Landing = ({ headerHeight }) => {
                         >
                         </div>
                     </div>
-                    <h2 className="text-5xl lg:text-7xl font-bold text-white mb-4">AI-Powered Stock Prediction Chart</h2>
-                    <p className="text-gray-400 mb-6">Use our AI model to predict the stock's future movement based on the latest news.</p>
+                    <h2 className="text-5xl lg:text-7xl font-bold text-white mb-4">AI-Powered On-Chain Credit Scoring</h2>
+                    <p className="text-gray-400 mb-6">Leverage our AI-driven platform to assess creditworthiness based on on-chain activity, enabling secure and transparent lending decisions in DeFi.</p>
                     
                     <div className="w-full lg:w-2/3 h-200px">
                         <div className="flex flex-col items-center justify-center text-white">
@@ -214,25 +194,17 @@ const Landing = ({ headerHeight }) => {
                         </div>
                     </div>
 
-                    <button
-                        className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-56 mt-10 overflow-hidden group"
-                    >
-                        <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500 text-lg">
-                            Check It Out Now !
-                        </span>
-                        <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
-                    </button>
+                    <a href="/credit-score">
+                        <button
+                            className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-56 mt-10 overflow-hidden group"
+                        >
+                            <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500 text-lg">
+                                Check It Out Now !
+                            </span>
+                            <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
+                        </button>
+                    </a>
                 </div>   
-            </section>
-
-            <section>
-                <div className='pb-20 mb-28 bg-black'>
-                    <div className="text-[#00E4BF] mb-4 inline-block py-1 px-4 border border-[#00E4BF] rounded-full mt-10 lg:mt-20">
-                        News Driven
-                    </div>
-                    <h2 className="text-4xl font-bold text-center mb-6 mt-2 text-white">News Driven Stock Price Prediction</h2>
-                    <NewsSection />
-                </div>
             </section>
 
             <section className="p-0 m-0">

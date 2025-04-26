@@ -41,7 +41,6 @@ function App() {
           <Routes>
             {/* Pass the dynamically calculated headerHeight as a prop to the Landing page */}
             <Route path="/" element={<Landing headerHeight={headerHeight} />} />
-            <Route path="/chart" element={<Chart />} />
             <Route path="/credit-score" element={<CreditScore />} />
           </Routes>
         </div>
