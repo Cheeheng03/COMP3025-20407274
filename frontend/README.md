@@ -1,70 +1,143 @@
-# Getting Started with Create React App
+# Web3 Wallet Credit Score Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This React application provides a user interface for interacting with the Web3 Wallet Credit Score system. It allows users to connect their wallets, view their credit scores, and understand the factors affecting their scores.
 
-## Available Scripts
+## Project Structure
 
-In the project directory, you can run:
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── Header.js
+│   │   ├── FicoGauge.js
+│   │   └── NewsSlider.js
+│   ├── pages/
+│   │   ├── Landing.js
+│   │   └── CreditScore.js
+│   ├── charts/
+│   ├── assets/
+│   └── testdata/
+├── public/
+└── package.json
+```
 
-### `npm start`
+## Application Flow
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. **User Authentication**
+   - Users connect their MetaMask wallet
+   - Application verifies wallet connection
+   - Handles account changes and network switching
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+2. **Feature Extraction**
+   - Calls Feature Extraction API (`http://5.189.130.12:8001`)
+   - Retrieves wallet metrics and transaction data
+   - Processes and formats data for AI model
 
-### `npm test`
+3. **Credit Score Calculation**
+   - Sends formatted data to AI Adapter (`http://5.189.130.12:8080`)
+   - Receives credit score prediction
+   - Displays score and contributing factors
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+4. **On-Chain Storage**
+   - Interacts with smart contract on Sepolia testnet
+   - Stores credit score on blockchain
+   - Handles transaction signing and confirmation
 
-### `npm run build`
+## API Interactions
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 1. Feature Extraction API
+```javascript
+// Request
+POST http://5.189.130.12:8001/extract-features
+{
+    "walletAddress": "0x..."
+}
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+// Response
+{
+    "walletAddress": "0x...",
+    "features": {
+        "TransactionFrequency": 123,
+        "TransactionVolume": 45.67,
+        // ... other features
+    }
+}
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2. AI Adapter API
+```javascript
+// Request
+POST http://5.189.130.12:8080/
+{
+    "id": "1",
+    "data": {
+        "Transaction Frequency": 123,
+        "Transaction Volume (ETH)": 45.67,
+        // ... formatted features
+    }
+}
 
-### `npm run eject`
+// Response
+{
+    "jobRunID": "...",
+    "data": {
+        "walletAddress": "0x...",
+        "creditScore": 750
+    }
+}
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 3. Smart Contract Interaction
+```javascript
+// Contract Address: 0x267541AA8acCC84Bc1c864Dc2B39dd1b2C6C4c9E
+// Network: Sepolia Testnet
+// Functions:
+// - getCreditScores(address)
+// Events:
+// - CreditScoreStored(address, uint256, uint256)
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Setup and Installation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. **Install Dependencies**
+```bash
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. **Environment Configuration**
+Create a `.env` file:
+```
+REACT_APP_CONTRACT_ADDRESS=0x267541AA8acCC84Bc1c864Dc2B39dd1b2C6C4c9E
+REACT_APP_FEATURE_API_URL=http://5.189.130.12:8001
+REACT_APP_AI_ADAPTER_URL=http://5.189.130.12:8080
+```
 
-## Learn More
+3. **Run Development Server**
+```bash
+npm start
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Key Components
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 1. CreditScore.js
+- Main page for credit score calculation
+- Handles wallet connection
+- Manages API calls and contract interactions
+- Displays results and visualizations
 
-### Code Splitting
+### 2. FicoGauge.js
+- Visual representation of credit score
+- Interactive gauge component
+- Score range indicators
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Deployment
 
-### Analyzing the Bundle Size
+1. **Build Production Version**
+```bash
+npm run build
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+2. **Deploy to Hosting Service**
+- Configure environment variables
+- Set up SSL
+- Configure CORS
