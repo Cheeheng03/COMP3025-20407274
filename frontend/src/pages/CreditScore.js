@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import FicoGauge from "../components/FicoGauge";
 import landingbg from '../assets/images/creditscorebg.jpg';
+import LoadingDialog from "../components/LoadingDialog";
 
 // Your OnChainCreditScore contract address and ABI
 const CREDIT_SCORE_CONTRACT_ADDRESS = "0x267541AA8acCC84Bc1c864Dc2B39dd1b2C6C4c9E";
@@ -43,6 +44,7 @@ const CreateCreditScorePage = () => {
   const [loading, setLoading] = useState(false);
   const [features, setFeatures] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0); // 0 = not loading, 1-4 = steps
 
   // Connect to MetaMask and set the wallet address
   const handleConnectWallet = async () => {
@@ -101,6 +103,11 @@ const CreateCreditScorePage = () => {
             console.error("Error fetching credit scores:", err);
           }
         }
+        setLoadingStep(4); // Step 4: Credit Score Displayed
+        setTimeout(() => {
+          setLoading(false);
+          setLoadingStep(0);
+        }, 1500);
       };
 
       // Subscribe to the event
@@ -116,6 +123,7 @@ const CreateCreditScorePage = () => {
   // Handle form submission: extract features, send to AI adapter, and then prompt contract call
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoadingStep(1); // Step 1: Extracting features
     setLoading(true);
 
     try {
@@ -131,9 +139,11 @@ const CreateCreditScorePage = () => {
       if (!data || !data.features) {
         console.error("No features returned from the Python API.");
         setLoading(false);
+        setLoadingStep(0);
         return;
       }
       setFeatures(data.features);
+      setLoadingStep(2); // Step 2: Sign transaction
 
       // 2) Prepare data in the required format for the AI adapter.
       const preparedData = {
@@ -184,9 +194,8 @@ const CreateCreditScorePage = () => {
           try {
             await window.ethereum.request({
               method: "wallet_switchEthereumChain",
-              params: [{ chainId: "0xaa36a7" }], // Sepolia chain ID in hex (0xaa36a7 = 11155111)
+              params: [{ chainId: "0xaa36a7" }],
             });
-            console.log("Switched to Sepolia network.");
           } catch (switchError) {
             if (switchError.code === 4902) {
               try {
@@ -206,22 +215,18 @@ const CreateCreditScorePage = () => {
                     },
                   ],
                 });
-                console.log("Sepolia network added to MetaMask.");
               } catch (addError) {
-                console.error("Failed to add Sepolia network:", addError);
-                alert("Please add the Sepolia network to MetaMask and try again.");
                 setLoading(false);
+                setLoadingStep(0);
                 return;
               }
             } else {
-              console.error("Failed to switch network:", switchError);
-              alert("Please switch to the Sepolia network in MetaMask and try again.");
               setLoading(false);
+              setLoadingStep(0);
               return;
             }
           }
 
-          // Define your contract address and ABI.
           const contractAddress = "0x433f3363634651fbef0Fd49Bf6409f5DFC0359f5";
           const contractABI = [
             {
@@ -233,30 +238,30 @@ const CreateCreditScorePage = () => {
             }
           ];
 
-          // Create the contract instance.
           const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
           try {
-            // Call the contract function to request the event listener.
+            setLoadingStep(3); // Step 3: Running Chainlink node
             const tx = await contract.requestEventListener();
-            console.log("Transaction sent. Waiting for confirmation...", tx);
-            const receipt = await tx.wait();
-            console.log("Transaction confirmed:", receipt);
-            alert("Transaction successful! Event listener requested.");
+            // Do not close the dialog here; wait for the event to be received
           } catch (txError) {
-            console.error("Error calling requestEventListener:", txError);
-            alert("Transaction failed. Please try again.");
+            setLoading(false);
+            setLoadingStep(0);
           }
         } else {
-          alert("MetaMask is not installed. Please install MetaMask and try again.");
+          setLoading(false);
+          setLoadingStep(0);
         }
       } else {
         console.warn("AI adapter did not return expected success:", adapterData);
+        setLoading(false);
+        setLoadingStep(0);
       }
     } catch (error) {
       console.error("Error in handleSubmit:", error);
+      setLoading(false);
+      setLoadingStep(0);
     }
-    setLoading(false);
   };
 
   const toggleExpand = () => {
@@ -313,101 +318,104 @@ const CreateCreditScorePage = () => {
   };
 
   return (
-    <div
-      className="min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-96px)] flex flex-col xl:flex-row bg-cover bg-center overflow-auto"
-      style={{ backgroundImage: `url(${landingbg})` }}
-    >
-      {/* Left Section: Wallet Options & Form */}
-      <div className="flex-1 p-8 m-12 bg-white bg-opacity-65 rounded-lg shadow-lg flex flex-col justify-between transition-all duration-300 overflow-y-auto">
-        {/* Grouped Components: Connect Wallet and Extracted Features */}
-        <div>
+    <>
+      <LoadingDialog open={loadingStep > 0} currentStep={loadingStep} />
+      <div
+        className="min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-96px)] flex flex-col xl:flex-row bg-cover bg-center overflow-auto"
+        style={{ backgroundImage: `url(${landingbg})` }}
+      >
+        {/* Left Section: Wallet Options & Form */}
+        <div className="flex-1 p-8 m-12 bg-white bg-opacity-65 rounded-lg shadow-lg flex flex-col justify-between transition-all duration-300 overflow-y-auto">
+          {/* Grouped Components: Connect Wallet and Extracted Features */}
           <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-              Connect Your Wallet
-            </h2>
-            <p className="text-gray-700 text-lg text-center mb-4">
-              You can either connect your wallet using MetaMask or manually enter a wallet address.
-            </p>
-            <div className="flex flex-col items-center space-y-6">
-              {/* Connect Wallet Button */}
-              <button
-                onClick={handleConnectWallet}
-                className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
-              >
-                <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
-                  Connect Wallet
-                </span>
-                <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
-              </button>
-
-              {/* Wallet Address Input */}
-              <input
-                type="text"
-                value={walletAddress}
-                onChange={(e) => setWalletAddress(e.target.value)}
-                placeholder="Enter Wallet Address (0x...)"
-                className="w-80 p-3 border rounded-md focus:outline-none text-gray-700 text-center"
-              />
-
-              {/* Submit Button */}
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
-              >
-                <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
-                  {loading ? "Processing..." : "Submit"}
-                </span>
-                <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
-              </button>
-            </div>
-          </div>
-
-          {/* Extracted Features Section */}
-          {features && (
-            <div className="mt-8">
-              <div
-                className="flex items-center justify-between cursor-pointer border-b pb-2"
-                onClick={toggleExpand}
-              >
-                <h3 className="text-3xl md:text-4xl font-semibold text-gray-800">
-                  Extracted Features
-                </h3>
-                <svg
-                  className={`w-5 h-5 transform transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+            <div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+                Connect Your Wallet
+              </h2>
+              <p className="text-gray-700 text-lg text-center mb-4">
+                You can either connect your wallet using MetaMask or manually enter a wallet address.
+              </p>
+              <div className="flex flex-col items-center space-y-6">
+                {/* Connect Wallet Button */}
+                <button
+                  onClick={handleConnectWallet}
+                  className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
+                  <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
+                    Connect Wallet
+                  </span>
+                  <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
+                </button>
+
+                {/* Wallet Address Input */}
+                <input
+                  type="text"
+                  value={walletAddress}
+                  onChange={(e) => setWalletAddress(e.target.value)}
+                  placeholder="Enter Wallet Address (0x...)"
+                  className="w-80 p-3 border rounded-md focus:outline-none text-gray-700 text-center"
+                />
+
+                {/* Submit Button */}
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="relative bg-[#4ec7b3] font-bold py-2 px-4 rounded-full w-40 overflow-hidden group"
+                >
+                  <span className="relative z-10 bg-black text-transparent bg-clip-text font-neue-machina font-bold group-hover:text-white transition-colors duration-500">
+                    {loading ? "Processing..." : "Submit"}
+                  </span>
+                  <span className="rounded-full absolute inset-0 bg-gradient-to-r from-[#00E4BF] via-blue-400 to-purple-600 transition-transform duration-500 transform translate-x-full group-hover:translate-x-0 z-0"></span>
+                </button>
               </div>
-              <div className=" bg-white/80 backdrop-blur-md rounded-lg shadow-lg p-6 mt-4 text-gray-800 overflow-y-auto max-h-80 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent flex justify-center">
-                <div className=" max-w-3xl text-left">
-                  {isExpanded ? renderFullFeatures() : renderSummary()}
+            </div>
+
+            {/* Extracted Features Section */}
+            {features && (
+              <div className="mt-8">
+                <div
+                  className="flex items-center justify-between cursor-pointer border-b pb-2"
+                  onClick={toggleExpand}
+                >
+                  <h3 className="text-3xl md:text-4xl font-semibold text-gray-800">
+                    Extracted Features
+                  </h3>
+                  <svg
+                    className={`w-5 h-5 transform transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                <div className=" bg-white/80 backdrop-blur-md rounded-lg shadow-lg p-6 mt-4 text-gray-800 overflow-y-auto max-h-80 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent flex justify-center">
+                  <div className=" max-w-3xl text-left">
+                    {isExpanded ? renderFullFeatures() : renderSummary()}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Aggregated Credit Score Section */}
-        <div className="mt-8 p-4 rounded-lg shadow-md overflow-y-auto max-h-64">
-          <h3 className="text-3xl font-bold text-gray-800 mb-4">Aggregated Credit Score</h3>
-          <div className="flex justify-between items-center">
-            <p className="text-gray-700 text-2xl font-semibold">
-              <strong>Score:</strong> {creditScore || 0}
-            </p>
+          {/* Aggregated Credit Score Section */}
+          <div className="mt-8 p-4 rounded-lg shadow-md overflow-y-auto max-h-64">
+            <h3 className="text-3xl font-bold text-gray-800 mb-4">Aggregated Credit Score</h3>
+            <div className="flex justify-between items-center">
+              <p className="text-gray-700 text-2xl font-semibold">
+                <strong>Score:</strong> {creditScore || 0}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Right Section: FicoGauge with dynamic creditScore */}
-      <div className="flex-1 flex items-center justify-center p-4">
-        <FicoGauge score={creditScore} />
+        {/* Right Section: FicoGauge with dynamic creditScore */}
+        <div className="flex-1 flex items-center justify-center p-4">
+          <FicoGauge score={creditScore} />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

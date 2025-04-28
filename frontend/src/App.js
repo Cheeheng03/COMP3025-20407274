@@ -5,7 +5,6 @@ import './App.css';
 import './fonts.css';
 import Landing from './pages/Landing';
 import CreditScore from './pages/CreditScore';
-import Chart from './charts/chart'
 function App() {
   const headerRef = useRef(null);
   const contentContainerRef = useRef(null);
